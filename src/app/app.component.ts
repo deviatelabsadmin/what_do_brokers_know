@@ -36,6 +36,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
   currentScrollHeight = document.documentElement.scrollHeight;
   failedEmail: boolean = false;
   typingColor: string = 'white'
+  showShare: boolean = false;
 
   typed: Typed = new Typed({callback: (text) => this.typingText = text});
   
@@ -140,7 +141,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
     await this.typeLine(`We (Caden), are a startup in NYC that is building a platform to help you control, own, protect and make money off your data, all while protecting your privacy. The internet is riddled with all sorts of problems and we are working to make the internet a better place.`);
     await this.typeLine(`We’ll let you know when our Beta launches this summer.`);
     await this.typeLine(`You can also follow our journey on Instagram and Twitter.`);
-    await this.typeLine(`Tell a friend about this project.`);
+    this.showShare = true;
   }
 
   private async terminate() {
@@ -154,7 +155,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
     await this.typeLine(`You can also follow our journey us on Instagram and Twitter.`);
     await this.typeLine(`Don’t worry, we didn’t do anything nefarious with the data we showed you above. This was just a creepy art project to demonstrate one of many issues around personal data and the endless surveillance that you never signed up for.`)
     await this.typeLine(`We look forward to solving these problems together.`);
-    await this.typeLine(`Tell a friend about this project.`);
+    this.showShare = true;
   }
 
   get isValidEmail(): boolean {
@@ -179,10 +180,9 @@ export class AppComponent implements OnInit, AfterViewChecked {
     });
 
     if (this.isValidEmail) {
+      await this.typeLine('SEARCHING THE WEB...', undefined, 'lightseagreen');
       await this.pullData();
-
-      await this.typeLine('SEARCHING THE WEB...', undefined, 'blue');
-      await this.typeLine('BUYING YOUR DATA...', undefined, 'blue');
+      await this.typeLine('BUYING YOUR DATA...', undefined, 'lightseagreen');
   
       if (this.hasData) {
         this.pullDataSuccess(); 
@@ -241,9 +241,9 @@ export class AppComponent implements OnInit, AfterViewChecked {
     }
 
     await this.typeLine(`Wow, there's a lot out there...`);
-    await this.typeLine(`Analyzing...`);
-    await this.typeLine(`Analyzing...`);
-    await this.typeLine(`Analyzing...`);
+    await this.typeLine(`Analyzing...`, undefined, 'green');
+    await this.typeLine(`Analyzing...`, undefined, 'green');
+    await this.typeLine(`Analyzing...`, undefined, 'green');
 
     await this.typeNextData();
 
@@ -261,7 +261,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
           await this.typeLine(`A ${this.data.title}... fancy`)
         }
     
-        if (this.data.addresses) {
+        if (this.data.addresses && this.data.addresses.length != 0) {
           await this.typeLine('Remember living in any of these?');
           
           for (let ad of this.data.addresses) {
@@ -292,7 +292,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
         await this.typeLine(`Astrological sign: ${this.data.birthday.emoji}`);
 
         if (this.data.birthday.age) {
-          await this.typeLine(`A ${this.data.birthday.age} year old ${this.data.birthday.sign}? You may need a hug today.`);
+          await this.typeLine(`A ${this.data.birthday.age} year old ${this.data.gender ? this.data.gender : ''} ${this.data.birthday.sign}? You may need a hug today.`);
         }
 
         if (this.data.birthday.isCurrentZodiac) {
@@ -301,7 +301,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
       }
     }
 
-    if (this.data.workplaces) {
+    if (this.data.workplaces && this.data.workplaces.length != 0) {
       await this.typeLine('THESE LOOK LIKE FUN PLACES TO WORK...');
 
       for (let w of this.data.workplaces) {
@@ -309,7 +309,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
       }
     }
 
-    if (this.data.associates) {
+    if (this.data.associates && this.data.associates.length != 0) {
       await this.typeLine('AND THESE LOOK LIKE FUN PEOPLE TO WORK WITH...');
 
       for (let assc of this.data.associates) {
@@ -317,7 +317,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
       }
     }
 
-    if (this.data.skills) {
+    if (this.data.skills && this.data.skills.length != 0) {
       await this.typeLine('HOPE YOUR WORK VALUES ALL THE AMAZING SKILLS YOU HAVE...');
 
       for (let s of this.data.skills) {
@@ -338,9 +338,9 @@ export class AppComponent implements OnInit, AfterViewChecked {
 
     if (this.data.social_handles) {
       await this.typeLine(`GENTLY CREEPING ON YOUR SOCIAL MEDIA...`);
+      await this.typeLine('Analyzing...', undefined, 'green');
 
       for (let s of this.data.social_handles) {
-        await this.typeLine('Analyzing...')
         await this.addLine(`${s}`);
       }
     }
@@ -361,7 +361,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
 
   // TODO pull real data
   private async pullData() {
-    const res: any = await this.api.requestByEmail(this.inputText, true);
+    const res: any = await this.api.requestByEmail(this.inputText, false);
 
     console.log(res);
 
@@ -390,7 +390,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
     await this.typeLine(LOAD_TEXT);
     await this.typeLine('LOADED.', undefined, 'green');
 
-    // await this.typeGeoLocation();
+    await this.typeGeoLocation();
 
     this.promptInput();
   }
@@ -424,8 +424,8 @@ export class AppComponent implements OnInit, AfterViewChecked {
         }
       ]);
     } else {
-      const vpnStr = "VPN in use";
-      await this.typeLine(vpnStr, [{text: vpnStr, color: 'lightgreen'}]);
+      const vpnStr = "Impressive, you're using a VPN?";
+      await this.typeLine(vpnStr, undefined, 'green');
     }
   }
 
@@ -495,6 +495,26 @@ export class AppComponent implements OnInit, AfterViewChecked {
     }]);
     
     this.readyForInput = true;
+  }
+
+  get canNativeShare(): boolean {
+    const navigator = window.navigator as any;
+
+    if (navigator.share) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  share() {
+    const navigator = window.navigator as any;
+
+    if (navigator.share) {
+      navigator.share({title: "What Do Data Brokes Know?"});
+    } else {
+
+    }
   }
 
   // async addElipses() {

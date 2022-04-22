@@ -16,5 +16,21 @@
     <div *ngIf="readyForInput" id="input_container">
       <span id="prefix">{{ this.prefixText }}</span><span>&nbsp;</span><input #input type="{{ this.isEmailSubmitted ? 'text' : 'email' }}" id="terminal_input" [(ngModel)]="this.inputText" autofocus>
     </div>
+
+    <div id="share" *ngIf="showShare">
+      <p *ngIf="canNativeShare" (click)="share()">
+        Tell a friend about this project.
+      </p>
+      <div *ngIf="!canNativeShare">
+        <p>Tell a friend about this project.</p>
+        <p>
+          <a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=creep.caden.io">Share on Facebook</a>
+        </p>
+        <p>
+          <a target="_blank" href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fcreep.caden.io&text=What%20do%20data%20brokers%20know?">Share on Twitter</a>
+        </p>
+      </div>
+    </div>
+    
   </div>
 </div>
