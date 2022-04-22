@@ -345,14 +345,20 @@ export class AppComponent implements OnInit, AfterViewChecked {
       }
     }
 
-    // if (this.data.instagram) {
-    //   await this.typeLine(`LOOK FAMILIAR?`);
+    if (this.data.instagram) {
+      await this.typeLine(`LOOK FAMILIAR?`);
 
-    //   await this.typedText.push({
-    //     isImage: true,
-    //     url: this.data.instagram.profile
-    //   });
-    // }
+      await this.typedText.push({
+        isImage: true,
+        url: this.data.instagram.profile
+      });
+
+      if (this.data.instagram.posts && this.data.instagram.posts.length != 0) {
+        await this.typeLine(`HOW ABOUT THESE MEMORIES YOU'VE MADE?`);
+      } else if (!this.data.instagram.isPublic) {
+        await this.typeLine(`HAVE YOU POSTED TO IG RECENTLY? YOU HAVE ${this.data.instagram.followers} REASONS TO SHARE AN UPDATE`);
+      }
+    }
 
     await this.typeLine(`Ok, enough of that, we're officially creeped out.`)
     await this.terminate();
