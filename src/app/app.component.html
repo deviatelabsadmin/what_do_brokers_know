@@ -1,15 +1,16 @@
-<div style="display: flex;">
+<div style="display: flex; overflow:hidden;">
   <div #scrollable id="terminal_container">
+  <div class="container">
     <p *ngFor="let item of this.typedText; let i = index">
       <span *ngIf="this.typedText[i].isImage">
         <img src="{{ this.typedText[i].url }}">  
       </span>
 
       <span *ngIf="!this.typedText[i].isImage">
-        <span *ngFor="let t of this.typedText[i].text" [ngStyle]="{'color': t.color ? t.color : 'white'}">{{ t.text }}</span>
+        <span *ngFor="let t of this.typedText[i].text" [ngStyle]="{'color': t.color ? t.color : '#c3ef8f'}">{{ t.text }}</span>
       </span>
     </p>
-    <p [ngStyle]="{ 'color': typingColor ? typingColor : 'white' }">
+    <p [ngStyle]="{ 'color': typingColor ? typingColor : '#c3ef8f' }">
       {{ this.typingText }}
     </p>
     
@@ -31,6 +32,6 @@
         </p>
       </div>
     </div>
-    
+    </div>
   </div>
 </div>
