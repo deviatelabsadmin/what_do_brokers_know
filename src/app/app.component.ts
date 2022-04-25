@@ -35,7 +35,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
   currentIndex = 0;
   currentScrollHeight = document.documentElement.scrollHeight;
   failedEmail: boolean = false;
-  typingColor: string = 'white'
+  typingColor: string = '#c3ef8f'
   showShare: boolean = false;
 
   typed: Typed = new Typed({callback: (text) => this.typingText = text});
@@ -95,11 +95,11 @@ export class AppComponent implements OnInit, AfterViewChecked {
         text: [
           {
             text: this.prefixText,
-            color: 'white'
+            color: '#c3ef8f'
           },
           {
             text: this.inputText,
-            color: 'green'
+            color: '#16fe21'
           }
         ]
       });
@@ -114,11 +114,11 @@ export class AppComponent implements OnInit, AfterViewChecked {
       text: [
         {
           text: this.prefixText,
-          color: 'white'
+          color: '#c3ef8f'
         },
         {
           text: this.inputText,
-          color: 'green'
+          color: '#16fe21'
         }
       ]
     });
@@ -133,8 +133,8 @@ export class AppComponent implements OnInit, AfterViewChecked {
   }
 
   private async failedTerminate() {
-    await this.addLine('TERMINATING C:\\\\creep.exe', 'red');
-    await this.addLine('TERMINATED.', 'green');
+    await this.addLine('TERMINATING C:\\\\creep.exe', '#f32a9d');
+    await this.addLine('TERMINATED.', '#16fe21');
 
     await this.typeLine(`Well look at that, we couldn’t find you! (yet)`);
     await this.typeLine(`However, it may only be a matter of time before big data brokers slurp up your personal data and list it for sale on the open web for a fraction of a penny.`);
@@ -146,7 +146,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
 
   private async terminate() {
     await this.addLine('TERMINATING C:\\\\creep.exe', 'red');
-    await this.addLine('TERMINATED.', 'green');
+    await this.addLine('TERMINATED.', '#16fe21');
 
     await this.typeLine(`Want to know WTF just happened?`);
     await this.typeLine(`This is just a tiny snapshot of your data that is for sale on the open web. It cost us a fraction of a penny to buy.`);
@@ -170,19 +170,19 @@ export class AppComponent implements OnInit, AfterViewChecked {
       text: [
         {
           text: this.prefixText, 
-          color: 'white'
+          color: '#c3ef8f'
         }, 
         {
           text: this.inputText, 
-          color: 'green'
+          color: '#16fe21'
         }
       ]
     });
 
     if (this.isValidEmail) {
-      await this.typeLine('SEARCHING THE WEB...', undefined, 'lightseagreen');
+      await this.typeLine('SEARCHING THE WEB...', undefined, 'lightsea#16fe21');
       await this.pullData();
-      await this.typeLine('BUYING YOUR DATA...', undefined, 'lightseagreen');
+      await this.typeLine('BUYING YOUR DATA...', undefined, 'lightsea#16fe21');
   
       if (this.hasData) {
         this.pullDataSuccess(); 
@@ -195,7 +195,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
           this.typedText.push({
             text: [{
               text: `Wow... you're well hidden! We couldn’t buy any data.`,
-              color: 'white'
+              color: '#c3ef8f'
             }]
           });
   
@@ -217,7 +217,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
       },
       {
         text: this.inputText,
-        color: 'red'
+        color: 'f32a9d'
       },
       {
         text: `'? Doesn't look like an email address 🤔`
@@ -233,7 +233,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
           text: "OK ",
         }, {
           text: this.data.name,
-          color: 'green'
+          color: '#16fe21'
         }, {
           text: `, let's do this...`
         }
@@ -241,9 +241,9 @@ export class AppComponent implements OnInit, AfterViewChecked {
     }
 
     await this.typeLine(`Wow, there's a lot out there...`);
-    await this.typeLine(`Analyzing...`, undefined, 'green');
-    await this.typeLine(`Analyzing...`, undefined, 'green');
-    await this.typeLine(`Analyzing...`, undefined, 'green');
+    await this.typeLine(`Analyzing...`, undefined, '#16fe21');
+    await this.typeLine(`Analyzing...`, undefined, '#16fe21');
+    await this.typeLine(`Analyzing...`, undefined, '#16fe21');
 
     await this.typeNextData();
 
@@ -251,39 +251,81 @@ export class AppComponent implements OnInit, AfterViewChecked {
   }
 
   private async typeNextData() {
+    
+
     switch(this.currentIndex) {
       case 0:
-        if (this.data.hasPhone) {
-          await this.typeLine('Check your phone ;)');
-        }
-
-        if (this.data.title) {
-          await this.typeLine(`A ${this.data.title}... fancy`)
-        }
-    
-        if (this.data.addresses && this.data.addresses.length != 0) {
-          await this.typeLine('Remember living in any of these?');
-          
-          for (let ad of this.data.addresses) {
-            await this.addLine(ad, 'red');
+        if (this.hasNextData) {
+          if (this.data.hasPhone) {
+            await this.typeLine('Check your phone ;)');
           }
+  
+          if (this.data.title) {
+            await this.typeLine(`A ${this.data.title}... fancy`)
+          }
+      
+          if (this.data.addresses && this.data.addresses.length != 0) {
+            await this.typeLine('Remember living in any of these?');
+            
+            for (let ad of this.data.addresses) {
+              await this.addLine(ad, 'red');
+            }
+          }
+  
+          await this.typeLine('Want to see more?');
+          await this.promptInput('[Y]es / [N]o, this is too creepy > ');
+        } else {
+          this.currentIndex++;
+          await this.typeNextData();
         }
-
-        await this.typeLine('Want to see more?');
-        await this.promptInput('[Y]es / [N]o, this is too creepy > ');
 
         break;
       case 1:
-        await this.typeAfterFirstPrompt();
+        if (this.hasNextData) {
+          await this.typeAfterFirstPrompt();
+        } else {
+          this.currentIndex++;
+          await this.typeNextData();
+        }
         break;
       case 2:
-        await this.typeAfterSecondPrompt();
+        if (this.hasNextData) {
+          await this.typeAfterSecondPrompt();
+        } else {
+          this.currentIndex++;
+          await this.typeNextData();
+        }
         break;
       default:
         break;
     }
 
     this.currentIndex++;
+  }
+
+  private get hasNextData(): boolean {
+    switch(this.currentIndex) {
+      case 0:
+        if (this.data.hasPhone) return true;
+        if (this.data.title) return true;
+        if (this.data.addresses && this.data.addresses.length != 0) return true;
+
+        return false;
+      case 1:
+        if (this.data.birthday) return true;
+        if (this.data.workplaces && this.data.workplaces.length != 0) return true;
+        if (this.data.associates && this.data.associates.length != 0) return true;
+        if (this.data.skills && this.data.skills.length != 0) return true;
+        if (this.data.school) return true;
+
+        return false;
+      case 2: 
+        if (this.data.social_handles) return true;
+        if (this.data.instagram) return true;
+        return false;      
+      default: 
+        return false;
+    }
   }
 
   private async typeAfterFirstPrompt() {
@@ -296,7 +338,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
         }
 
         if (this.data.birthday.isCurrentZodiac) {
-          await this.typeLine(`Woo! it's ${this.data.brithday.sign} season!`);
+          await this.typeLine(`Woo! it's ${this.data.birthday.sign} season!`);
         }
       }
     }
@@ -338,7 +380,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
 
     if (this.data.social_handles) {
       await this.typeLine(`GENTLY CREEPING ON YOUR SOCIAL MEDIA...`);
-      await this.typeLine('Analyzing...', undefined, 'green');
+      await this.typeLine('Analyzing...', undefined, '#16fe21');
 
       for (let s of this.data.social_handles) {
         await this.addLine(`${s}`);
@@ -394,7 +436,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
     }
 
     await this.typeLine(LOAD_TEXT);
-    await this.typeLine('LOADED.', undefined, 'green');
+    await this.typeLine('LOADED.', undefined, '#16fe21');
 
     await this.typeGeoLocation();
 
@@ -412,7 +454,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
       }, 
       {
         text: ip,
-        color: 'red'
+        color: '#f32a9d'
       }
     ]);
 
@@ -426,12 +468,12 @@ export class AppComponent implements OnInit, AfterViewChecked {
         }, 
         {
           text: this.geo.locationStr(locRes),
-          color: 'red'
+          color: '#f32a9d'
         }
       ]);
     } else {
       const vpnStr = "Impressive, you're using a VPN?";
-      await this.typeLine(vpnStr, undefined, 'green');
+      await this.typeLine(vpnStr, undefined, '#16fe21');
     }
   }
 
@@ -446,7 +488,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
       this.typedText.push({
         text: [{
           text: line,
-          color: color ? color : 'white'
+          color: color ? color : '#c3ef8f'
         }]
       });
     } else if (styledLine) {
@@ -455,7 +497,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
       });
     }
 
-    this.typingColor = 'white'
+    this.typingColor = '#c3ef8f'
   }
 
   async typeLine(line: string, typed?: Array<any>, color?: string) {
@@ -479,25 +521,25 @@ export class AppComponent implements OnInit, AfterViewChecked {
       this.typedText.push({
         text: [{
           text: line,
-          color: color ? color : 'white'
+          color: color ? color : '#c3ef8f'
         }]
       });
     }
 
-    this.typingColor = 'white';
+    this.typingColor = '#c3ef8f';
   }
 
   async rickroll() {
     this.readyForInput = false;
     await this.typeLine('BOOTING UP SECONDARY PROCESS...', undefined, 'red');
-    await this.typeLine('RUNNING C:\\\\rickroll.exe', undefined, 'green');
+    await this.typeLine('RUNNING C:\\\\rickroll.exe', undefined, '#16fe21');
 
     window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "_blank");
 
     await this.addLine('RESUMING C:\\\\creep.exe')
     await this.addLine(undefined, undefined, [{
       text: 'RESUMED.',
-      color: 'green'
+      color: '#16fe21'
     }]);
     
     this.readyForInput = true;

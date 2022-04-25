@@ -1,5 +1,4 @@
 #terminal_container {
-    overflow-y: auto;
     margin: 20px 20px 80px 20px;
 }
 
@@ -24,6 +23,6 @@
     display: inline;
 }
 
-#share {
-    text-decoration: underline;
+::selection{
+   background: rgba(195, 239, 143, 0.5);
 }
