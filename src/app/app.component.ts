@@ -251,11 +251,9 @@ export class AppComponent implements OnInit, AfterViewChecked {
   }
 
   private async typeNextData() {
-    
-
     switch(this.currentIndex) {
       case 0:
-        if (this.hasNextData) {
+        if (this.hasNextDataAt(0)) {
           if (this.data.hasPhone) {
             await this.typeLine('Check your phone ;)');
           }
@@ -271,9 +269,14 @@ export class AppComponent implements OnInit, AfterViewChecked {
               await this.addLine(ad, 'red');
             }
           }
-  
-          await this.typeLine('Want to see more?');
-          await this.promptInput('[Y]es / [N]o, this is too creepy > ');
+
+          if (this.hasFutureData) {
+            await this.typeLine('Want to see more?');
+            await this.promptInput('[Y]es / [N]o, this is too creepy > ');
+          } else {
+            await this.typeLine(`Ok, enough of that, we're officially creeped out.`)
+            this.terminate();
+          }
         } else {
           this.currentIndex++;
           await this.typeNextData();
@@ -281,7 +284,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
 
         break;
       case 1:
-        if (this.hasNextData) {
+        if (this.hasNextDataAt(1)) {
           await this.typeAfterFirstPrompt();
         } else {
           this.currentIndex++;
@@ -289,22 +292,20 @@ export class AppComponent implements OnInit, AfterViewChecked {
         }
         break;
       case 2:
-        if (this.hasNextData) {
+        if (this.hasNextDataAt(2)) {
           await this.typeAfterSecondPrompt();
-        } else {
           this.currentIndex++;
-          await this.typeNextData();
         }
         break;
       default:
         break;
     }
-
+    
     this.currentIndex++;
   }
 
-  private get hasNextData(): boolean {
-    switch(this.currentIndex) {
+  private hasNextDataAt(index: number): boolean {
+    switch(index) {
       case 0:
         if (this.data.hasPhone) return true;
         if (this.data.title) return true;
@@ -326,6 +327,16 @@ export class AppComponent implements OnInit, AfterViewChecked {
       default: 
         return false;
     }
+  }
+
+  private get hasFutureData(): boolean {
+    for (let i = this.currentIndex + 1; i < 4; i++) {
+      if (this.hasNextDataAt(i)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private async typeAfterFirstPrompt() {
@@ -371,8 +382,13 @@ export class AppComponent implements OnInit, AfterViewChecked {
       await this.typeLine(`OH SMARTY PANTS, LOOKS LIKE YOUR SKILLS WERE HONED AT ${this.data.school}?`);
     }
 
-    await this.typeLine('Want to see more?');
-    await this.promptInput('[Y]es... I think / [N]o, make it stop > ');
+    if (this.hasFutureData) {
+      await this.typeLine('Want to see more?');
+      await this.promptInput('[Y]es... I think / [N]o, make it stop > ');
+    } else {
+      await this.typeLine(`Ok, enough of that, we're officially creeped out.`)
+      this.terminate();
+    }
   }
 
   private async typeAfterSecondPrompt() {
