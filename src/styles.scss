@@ -207,3 +207,14 @@ body {
 }
 
 .container span {filter: none!important;}
+
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+    select,
+    select:focus,
+    textarea,
+    textarea:focus,
+    input,
+    input:focus {
+      font-size: 16px;
+    }
+}

@@ -255,7 +255,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
       case 0:
         if (this.hasNextDataAt(0)) {
           if (this.data.hasPhone) {
-            await this.typeLine('Check your phone ;)');
+            await this.typeLine('Check your phone ;)', undefined, 'red');
           }
   
           if (this.data.title) {
@@ -315,6 +315,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
       case 1:
         if (this.data.birthday) return true;
         if (this.data.workplaces && this.data.workplaces.length != 0) return true;
+        if (this.data.emails && this.data.emails.length != 0) return true;
         if (this.data.associates && this.data.associates.length != 0) return true;
         if (this.data.skills && this.data.skills.length != 0) return true;
         if (this.data.school) return true;
@@ -346,11 +347,20 @@ export class AppComponent implements OnInit, AfterViewChecked {
 
         if (this.data.birthday.age) {
           await this.typeLine(`A ${this.data.birthday.age} year old ${this.data.gender ? this.data.gender : ''} ${this.data.birthday.sign}? You may need a hug today.`);
+          await this.typeLine(this.zodiacText(this.data.birthday.sign));
         }
 
         if (this.data.birthday.isCurrentZodiac) {
           await this.typeLine(`Woo! it's ${this.data.birthday.sign} season!`);
         }
+      }
+    }
+
+    if (this.data.emails && this.data.emails.length != 0) {
+      await this.typeLine(`HOW COME YOU DIDN'T USE ONE OF YOUR OTHER EMAILS?`);
+
+      for (let e of this.data.emails) {
+        await this.addLine(e, 'red');
       }
     }
 
@@ -399,7 +409,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
       await this.typeLine('Analyzing...', undefined, '#16fe21');
 
       for (let s of this.data.social_handles) {
-        await this.addLine(`${s}`);
+        await this.addLine(`${s}`, 'red');
       }
     }
 
@@ -578,6 +588,45 @@ export class AppComponent implements OnInit, AfterViewChecked {
       navigator.share({title: "What Do Data Brokes Know?"});
     } else {
 
+    }
+  }
+
+  get isMobileScreen(): boolean {
+    if (window.screen.width <= 700) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  zodiacText(sign: string): string {
+    switch(sign) {
+      case 'Aries':
+        return 'Aries are passionate and independent. The most courageous of the signs, you must be the leader of every pack!';
+      case 'Taurus':
+        return 'Tauruses are the anchor of the Zodiac. You are a trustworthy friend, colleague, and partner.';
+      case 'Gemini':
+        return 'Geminis are easily the life of the party without trying, you still enjoy time by yourselves.';
+      case 'Cancer':
+        return 'Cancers are incredibly loyal but maybe to a fault? And let me guess you HATE small talk.';
+      case 'Leo':
+        return 'Leos love to bask in the spotlight and celebrate… well, themselves. :)';
+      case 'Virgo':
+        return 'Did someone say planner? Virgos are a friend for life and a lifelong learner, you love trying new things!';
+      case 'Libra':
+        return 'Libras are the master of compromise and diplomacy, you are always the mediator of friends.';
+      case 'Scorpio':
+          return 'Scorpios are unafraid to blaze your own trail, you make a statement where you go.';
+      case 'Sagittarius':
+        return 'Sagittariuses are open-hearted and big-spirited. You give great advice to friends and family!';
+      case 'Capricorn':
+        return 'Capricorns always get what they set their mind to. As someone who believes presentation is everything, everything you do is Insta-worthy!';
+      case 'Aquarius':
+        return 'Natural intellects who care deeply about others, Aquarians are always working to make the world a better place.';
+      case 'Pisces':
+        return 'Maybe the most sensitive and intuitive friend in the group, Pisces have a strong moral compass.';
+      default:
+        return '';            
     }
   }
 

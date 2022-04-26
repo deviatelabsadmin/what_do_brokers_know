@@ -15,7 +15,10 @@
     </p>
     
     <div *ngIf="readyForInput" id="input_container">
-      <span id="prefix">{{ this.prefixText }}</span><span>&nbsp;</span><input #input type="{{ this.isEmailSubmitted ? 'text' : 'email' }}" id="terminal_input" [(ngModel)]="this.inputText" autofocus>
+      <span id="prefix">{{ this.prefixText }}</span><span>&nbsp;</span><input *ngIf="!isMobileScreen" type="{{ this.isEmailSubmitted ? 'text' : 'email' }}" id="terminal_input" [(ngModel)]="this.inputText" autofocus>
+    </div>
+    <div *ngIf="readyForInput && isMobileScreen">
+      <input style="background-color: #4e4e4e;" type="{{ this.isEmailSubmitted ? 'text' : 'email' }}" id="terminal_input" [(ngModel)]="this.inputText">
     </div>
 
     <div *ngIf="showShare">
