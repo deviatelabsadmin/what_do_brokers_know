@@ -4,7 +4,7 @@ import { OnInit } from '@angular/core';
 import { GeolocateService } from './geolocate.service';
 import { ApiService } from './api.service';
 
-const EMAIL_PROMPT = "Enter your email to get started > ";
+const EMAIL_PROMPT = "Enter your email to get started > ".toUpperCase();
 
 const INIT_TEXT =  
   `**********************************************
@@ -13,7 +13,7 @@ const INIT_TEXT =
    *************** KNOW ABOUT ME? ***************
    **********************************************`
 
-const LOAD_TEXT = `LOADING C:\\\\creep.exe`;
+const LOAD_TEXT = `LOADING DATA BROKER DATABASE...`;
 
 @Component({
   selector: 'app-root',
@@ -21,7 +21,6 @@ const LOAD_TEXT = `LOADING C:\\\\creep.exe`;
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit, AfterViewChecked {
-  @ViewChild('scrollable') private scrollable!: ElementRef;
   @ViewChild('input') private inputField!: ElementRef;
   
   typedText: Array<any> = [];
@@ -36,7 +35,8 @@ export class AppComponent implements OnInit, AfterViewChecked {
   currentScrollHeight = document.documentElement.scrollHeight;
   failedEmail: boolean = false;
   typingColor: string = '#c3ef8f'
-  showShare: boolean = false;
+  isOptOutPrompt: boolean = false;
+  isTermsPrompt: boolean = true;
 
   typed: Typed = new Typed({callback: (text) => this.typingText = text});
   
@@ -88,25 +88,50 @@ export class AppComponent implements OnInit, AfterViewChecked {
   async submit() {
     this.readyForInput = false;
 
-    if (this.isEmailSubmitted) {
+    if (this.isTermsPrompt) {
+      const input = this.inputText.toLowerCase();
+      this.isTermsPrompt = false;
+      this.printInput();
+
+      if (input == 'n' || input == 'no') {
+        await this.terminate();
+      } else {
+        await this.promptInput(EMAIL_PROMPT);
+      }
+
+    } else if (this.isOptOutPrompt) {
+      const input = this.inputText.toLowerCase();
+      this.printInput();
+
+      if (input == 'y' || input == 'yes') {
+
+        await this.typeLine(`OK, YOU'VE SUCCESSFULLY OPTED OUT`);
+      } else {
+        // todo
+      }
+    } else if (this.isEmailSubmitted) {
       await this.handleInput();
     } else if (!this.inputText.replace(/\s/g, '').length) {
-      this.typedText.push({
-        text: [
-          {
-            text: this.prefixText,
-            color: '#c3ef8f'
-          },
-          {
-            text: this.inputText,
-            color: '#16fe21'
-          }
-        ]
-      });
+      this.printInput();
       await this.promptInput(EMAIL_PROMPT);
     } else {
       await this.submitEmail()
     }
+  }
+
+  private printInput() {
+    this.typedText.push({
+      text: [
+        {
+          text: this.prefixText,
+          color: '#c3ef8f'
+        },
+        {
+          text: this.inputText,
+          color: '#16fe21'
+        }
+      ]
+    });
   }
 
   private async handleInput() {
@@ -138,10 +163,40 @@ export class AppComponent implements OnInit, AfterViewChecked {
 
     await this.typeLine(`Well look at that, we couldn’t find you! (yet)`);
     await this.typeLine(`However, it may only be a matter of time before big data brokers slurp up your personal data and list it for sale on the open web for a fraction of a penny.`);
-    await this.typeLine(`We (Caden), are a startup in NYC that is building a platform to help you control, own, protect and make money off your data, all while protecting your privacy. The internet is riddled with all sorts of problems and we are working to make the internet a better place.`);
+    await this.typeLine(`We're Caden, are a startup in NYC that is building a platform to help you control, own, protect and make money off your data, all while protecting your privacy. The internet is riddled with all sorts of problems and we are working to make the internet a better place.`, [
+      {
+        text: `We're `
+      },
+      {
+        text: 'Caden',
+        link: 'https://www.caden.io'
+      },
+      {
+        text: `, are a startup in NYC that is building a platform to help you control, own, protect and make money off your data, all while protecting your privacy. The internet is riddled with all sorts of problems and we are working to make the internet a better place.`
+      }
+    ]);
     await this.typeLine(`We’ll let you know when our Beta launches this summer.`);
-    await this.typeLine(`You can also follow our journey on Instagram and Twitter.`);
-    this.showShare = true;
+    await this.typeLine(`You can also follow our journey on Instagram and Twitter.`, [
+      {
+        text: `You can also follow our journey on `
+      },
+      {
+        text: 'Instagram',
+        link: 'https://www.instagram.com/caden.io'
+      },
+      {
+        text: ' and '
+      },
+      {
+        text: 'Twitter',
+        link: 'https://twitter.com/cadenhq'
+      },
+      {
+        text: '.'
+      }
+    ]);
+    await this.typeShare();
+    await this.promptOptOut();
   }
 
   private async terminate() {
@@ -150,12 +205,42 @@ export class AppComponent implements OnInit, AfterViewChecked {
 
     await this.typeLine(`Want to know WTF just happened?`);
     await this.typeLine(`This is just a tiny snapshot of your data that is for sale on the open web. It cost us a fraction of a penny to buy.`);
-    await this.typeLine(`We're Caden, a startup in NYC that is building a platform to help folks like you control, own, protect and make money off your data, all while protecting your privacy. The internet is riddled with all sorts of problems and we are working to make the internet a better place`)
+    await this.typeLine(`We're Caden, a startup in NYC that is building a platform to help folks like you control, own, protect and make money off your data, all while protecting your privacy. The internet is riddled with all sorts of problems and we are working to make the internet a better place`, [
+      {
+        text: `We're `
+      },
+      {
+        text: 'Caden',
+        link: 'https://www.caden.io'
+      },
+      {
+        text: `, a startup in NYC that is building a platform to help folks like you control, own, protect and make money off your data, all while protecting your privacy. The internet is riddled with all sorts of problems and we are working to make the internet a better place`
+      }
+    ]);
     await this.typeLine(`We’ll let you know when our Beta launches this summer.`);
-    await this.typeLine(`You can also follow our journey us on Instagram and Twitter.`);
+    await this.typeLine(`You can also follow our journey on Instagram and Twitter.`, [
+      {
+        text: `You can also follow our journey on `
+      },
+      {
+        text: 'Instagram',
+        link: 'https://www.instagram.com/caden.io'
+      },
+      {
+        text: ' and '
+      },
+      {
+        text: 'Twitter',
+        link: 'https://twitter.com/cadenhq'
+      },
+      {
+        text: '.'
+      }
+    ]);
     await this.typeLine(`Don’t worry, we didn’t do anything nefarious with the data we showed you above. This was just a creepy art project to demonstrate one of many issues around personal data and the endless surveillance that you never signed up for.`)
     await this.typeLine(`We look forward to solving these problems together.`);
-    this.showShare = true;
+    await this.typeShare();
+    await this.promptOptOut();
   }
 
   get isValidEmail(): boolean {
@@ -194,14 +279,14 @@ export class AppComponent implements OnInit, AfterViewChecked {
             // request another email
           this.typedText.push({
             text: [{
-              text: `Wow... you're well hidden! We couldn’t buy any data.`,
+              text: `WOW... YOU'RE WELL HIDDEN! WE COULDN'T BUY ANY DATA.`,
               color: '#c3ef8f'
             }]
           });
   
           this.isEmailSubmitted = false;
           this.failedEmail = true;
-          this.promptInput('Try another email address > ');
+          this.promptInput('TRY ANOTHER EMAIL ADDRESS > ');
         }
       }
     } else {
@@ -211,39 +296,39 @@ export class AppComponent implements OnInit, AfterViewChecked {
   }
 
   private async invalidEmailPrompt() {
-    await this.typeLine(`What's '${this.inputText}'? Doesn't look like an email address 🤔`, [
+    await this.typeLine(`WHAT'S '${this.inputText}'? DOESN'T LOOK LIKE AN EMAIL ADDRESS 🤔`.toUpperCase(), [
       {
-        text: `What's '`,
+        text: `WHAT'S '`
       },
       {
         text: this.inputText,
         color: 'f32a9d'
       },
       {
-        text: `'? Doesn't look like an email address 🤔`
+        text: `'? DOESN'T LOOK LIKE AN EMAIL ADDRESS 🤔`
       }
     ]);
-    await this.promptInput(`Let's try an actual email this time > `);
+    await this.promptInput(`LET'S TRY AN ACTUAL EMAIL THIS TIME > `.toUpperCase());
   }
 
   private async pullDataSuccess() {
     if (this.data.name) {
-      await this.typeLine(`OK ${this.data.name}, let's do this...`, [
+      await this.typeLine(`OK ${this.data.name.toUpperCase()}, LET'S DO THIS...`, [
         {
           text: "OK ",
         }, {
           text: this.data.name,
           color: '#16fe21'
         }, {
-          text: `, let's do this...`
+          text: `, LET'S DO THIS...`
         }
       ]);
     }
 
-    await this.typeLine(`Wow, there's a lot out there...`);
-    await this.typeLine(`Analyzing...`, undefined, '#16fe21');
-    await this.typeLine(`Analyzing...`, undefined, '#16fe21');
-    await this.typeLine(`Analyzing...`, undefined, '#16fe21');
+    await this.typeLine(`WOW, THERE'S A LOT OUT THERE...`);
+    await this.typeLine(`ANALYZING...`, undefined, '#16fe21');
+    await this.typeLine(`ANALYZING...`, undefined, '#16fe21');
+    await this.typeLine(`ANALYZING...`, undefined, '#16fe21');
 
     await this.typeNextData();
 
@@ -254,27 +339,52 @@ export class AppComponent implements OnInit, AfterViewChecked {
     switch(this.currentIndex) {
       case 0:
         if (this.hasNextDataAt(0)) {
+          if (this.data.phones) {
+            await this.typeLine(`YOU'VE HAD QUITE A FEW PHONE NUMBERS...`);
+
+            for (let p of this.data.phones) {
+              await this.addLine(p, 'red');
+            }
+
+            await new Promise(f => setTimeout(f, 500));
+          }
+
           if (this.data.hasPhone) {
-            await this.typeLine('Check your phone ;)', undefined, 'red');
+            await this.typeLine('CHECK YOUR PHONE ;)', undefined, 'red');
+            await new Promise(f => setTimeout(f, 500));
           }
   
           if (this.data.title) {
-            await this.typeLine(`A ${this.data.title}... fancy`)
+            await this.typeLine(`SO YOU'RE A ${this.data.title.toUpperCase()}... FANCY`, [
+              {
+                text: `SO YOU'RE A `
+              }, 
+              {
+                text: this.data.title.toUpperCase(),
+                color: '#16fe21'
+              },
+              {
+                text: '... FANCY'
+              }
+            ]);
+            await new Promise(f => setTimeout(f, 500));
           }
       
           if (this.data.addresses && this.data.addresses.length != 0) {
-            await this.typeLine('Remember living in any of these?');
+            await this.typeLine('REMEMBER LIVING IN ANY OF THESE?');
             
             for (let ad of this.data.addresses) {
               await this.addLine(ad, 'red');
             }
+
+            await new Promise(f => setTimeout(f, 500));
           }
 
           if (this.hasFutureData) {
-            await this.typeLine('Want to see more?');
+            await this.typeLine('WANT TO SEE MORE?');
             await this.promptInput('[Y]es / [N]o, this is too creepy > ');
           } else {
-            await this.typeLine(`Ok, enough of that, we're officially creeped out.`)
+            await this.typeLine(`OK, ENOUGH OF THAT, WE'RE OFFICIALLY CREEPED OUT.`)
             this.terminate();
           }
         } else {
@@ -308,6 +418,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
     switch(index) {
       case 0:
         if (this.data.hasPhone) return true;
+        if (this.data.phones) return true;
         if (this.data.title) return true;
         if (this.data.addresses && this.data.addresses.length != 0) return true;
 
@@ -343,17 +454,18 @@ export class AppComponent implements OnInit, AfterViewChecked {
   private async typeAfterFirstPrompt() {
     if (this.data.birthday) {
       if (this.data.birthday.sign) {
-        await this.typeLine(`Astrological sign: ${this.data.birthday.emoji}`);
+        await this.typeLine(`ASTROLOGICAL SIGN: ${this.data.birthday.emoji}`);
 
         if (this.data.birthday.age) {
-          await this.typeLine(`A ${this.data.birthday.age} year old ${this.data.gender ? this.data.gender : ''} ${this.data.birthday.sign}? You may need a hug today.`);
+          await this.typeLine(`A ${this.data.birthday.age} YEAR OLD ${this.data.gender ? this.data.gender.toUpperCase() : ''} ${this.data.birthday.sign}? YOU MAY NEED A HUG TODAY.`);
           await this.typeLine(this.zodiacText(this.data.birthday.sign));
         }
 
         if (this.data.birthday.isCurrentZodiac) {
-          await this.typeLine(`Woo! it's ${this.data.birthday.sign} season!`);
+          await this.typeLine(`Woo! it's ${this.data.birthday.sign} season!`.toUpperCase());
         }
       }
+      await new Promise(f => setTimeout(f, 500));
     }
 
     if (this.data.emails && this.data.emails.length != 0) {
@@ -362,41 +474,46 @@ export class AppComponent implements OnInit, AfterViewChecked {
       for (let e of this.data.emails) {
         await this.addLine(e, 'red');
       }
+      await new Promise(f => setTimeout(f, 500));
     }
 
     if (this.data.workplaces && this.data.workplaces.length != 0) {
       await this.typeLine('THESE LOOK LIKE FUN PLACES TO WORK...');
 
       for (let w of this.data.workplaces) {
-        await this.addLine(w, 'red');
+        await this.addLine(w.toUpperCase(), 'red');
       }
+      await new Promise(f => setTimeout(f, 500));
     }
 
     if (this.data.associates && this.data.associates.length != 0) {
       await this.typeLine('AND THESE LOOK LIKE FUN PEOPLE TO WORK WITH...');
 
       for (let assc of this.data.associates) {
-        await this.addLine(assc, 'red');
+        await this.addLine(assc.toUpperCase(), 'red');
       }
+      await new Promise(f => setTimeout(f, 500));
     }
 
     if (this.data.skills && this.data.skills.length != 0) {
       await this.typeLine('HOPE YOUR WORK VALUES ALL THE AMAZING SKILLS YOU HAVE...');
 
       for (let s of this.data.skills) {
-        await this.addLine(s, 'red');
+        await this.addLine(s.toUpperCase(), 'red');
       }
+      await new Promise(f => setTimeout(f, 500));
     }
 
     if (this.data.school) {
-      await this.typeLine(`OH SMARTY PANTS, LOOKS LIKE YOUR SKILLS WERE HONED AT ${this.data.school}?`);
+      await this.typeLine(`OH SMARTY PANTS, LOOKS LIKE YOUR SKILLS WERE HONED AT ${this.data.school.toUpperCase()}?`);
+      await new Promise(f => setTimeout(f, 500));
     }
 
     if (this.hasFutureData) {
-      await this.typeLine('Want to see more?');
+      await this.typeLine('WANT TO SEE MORE?');
       await this.promptInput('[Y]es... I think / [N]o, make it stop > ');
     } else {
-      await this.typeLine(`Ok, enough of that, we're officially creeped out.`)
+      await this.typeLine(`Ok, enough of that, we're officially creeped out.`.toUpperCase())
       this.terminate();
     }
   }
@@ -406,29 +523,39 @@ export class AppComponent implements OnInit, AfterViewChecked {
 
     if (this.data.social_handles) {
       await this.typeLine(`GENTLY CREEPING ON YOUR SOCIAL MEDIA...`);
-      await this.typeLine('Analyzing...', undefined, '#16fe21');
+      await this.typeLine('ANALYZING...', undefined, '#16fe21');
 
       for (let s of this.data.social_handles) {
         await this.addLine(`${s}`, 'red');
       }
+      await new Promise(f => setTimeout(f, 500));
     }
 
     if (this.data.instagram) {
       await this.typeLine(`LOOK FAMILIAR?`);
 
-      await this.typedText.push({
+      this.typedText.push({
         isImage: true,
-        url: this.data.instagram.profile
+        src: this.data.instagram.profile
       });
+
+      await new Promise(f => setTimeout(f, 500));
 
       if (this.data.instagram.posts && this.data.instagram.posts.length != 0) {
         await this.typeLine(`HOW ABOUT THESE MEMORIES YOU'VE MADE?`);
+        
+        for (let i = 0; i < this.data.instagram.posts.length; i++) {
+           this.typedText.push({
+            isImage: true,
+            src: this.data.instagram.posts[i]
+          });
+        }
       } else if (!this.data.instagram.isPublic) {
         await this.typeLine(`HAVE YOU POSTED TO IG RECENTLY? YOU HAVE ${this.data.instagram.followers} REASONS TO SHARE AN UPDATE`);
       }
     }
 
-    await this.typeLine(`Ok, enough of that, we're officially creeped out.`)
+    await this.typeLine(`Ok, enough of that, we're officially creeped out.`.toUpperCase())
     await this.terminate();
   }
 
@@ -439,7 +566,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
 
     console.log(res);
 
-    if (res.hasOwnProperty('body')) {
+    if (res.hasOwnProperty('body') && Object.keys(res['body']).length != 0) {
       this.data = res['body'];
       this.hasData = true;
     } else {
@@ -465,41 +592,84 @@ export class AppComponent implements OnInit, AfterViewChecked {
     await this.typeLine('LOADED.', undefined, '#16fe21');
 
     await this.typeGeoLocation();
+    
+    await this.addLine(undefined, undefined, [
+      {
+        text: 'DO YOU AGREE TO OUR '
+      },
+      {
+        text: 'TERMS',
+        link: 'https://www.caden.io/privacy'
+      },
+      {
+        text: '?'
+      }
+    ])
 
-    this.promptInput();
+    this.promptInput("[Y]es / [N]o > ");
   }
 
-  async typeGeoLocation() {
-    const ip = await this.geo.getIpAddress();
-    const locRes = await this.geo.getLocationFromIp(ip);
-
-    const ipStr = "IP Address: " + ip;
-    await this.typeLine(ipStr, [
-      {
-        text: "IP Address: "
-      }, 
-      {
-        text: ip,
-        color: '#f32a9d'
-      }
-    ]);
-
-    const isVpn: boolean = this.geo.isVpn(locRes);
-
-    if (!isVpn) {
-      const locStr: string = "Location: " + this.geo.locationStr(locRes);
-      await this.typeLine(locStr, [
+  async typeShare() {
+    if (this.canNativeShare) {
+      await this.addLine(undefined, undefined, [
         {
-          text: "Location: "
-        }, 
-        {
-          text: this.geo.locationStr(locRes),
-          color: '#f32a9d'
+          text: 'TELL A FRIEND ABOUT THIS PROJECT.',
+          click: this.share,
         }
       ]);
     } else {
-      const vpnStr = "Impressive, you're using a VPN?";
-      await this.typeLine(vpnStr, undefined, '#16fe21');
+      await this.addLine('TELL A FRIEND ABOUT THIS PROJECT.');
+      await this.addLine(undefined, undefined, [
+        {
+          text: `Share on Facebook`.toUpperCase(),
+          link: 'https://www.facebook.com/sharer/sharer.php?u=creep.caden.io'
+        }
+      ]);
+      await this.addLine(undefined, undefined, [
+        {
+          text: `Share on Instagram`.toUpperCase(),
+          link: 'https://twitter.com/intent/tweet?url=https%3A%2F%2Fcreep.caden.io&text=What%20do%20data%20brokers%20know?'
+        }
+      ]);
+    }
+  }
+
+  async typeGeoLocation() {
+    try {
+      const ip = await this.geo.getIpAddress();
+      const locRes = await this.geo.getLocationFromIp(ip);
+  
+      const ipStr = "IP ADDRESS: " + ip;
+      await this.typeLine(ipStr, [
+        {
+          text: "IP ADDRESS: "
+        }, 
+        {
+          text: ip,
+          color: '#f32a9d'
+        }
+      ]);
+  
+      const isVpn: boolean = this.geo.isVpn(locRes);
+  
+      if (!isVpn) {
+        const l = this.geo.locationStr(locRes).toUpperCase();
+        const locStr: string = "LOCATION: " + l;
+        await this.typeLine(locStr, [
+          {
+            text: "LOCATION: "
+          }, 
+          {
+            text: l,
+            color: '#f32a9d'
+          }
+        ]);
+      } else {
+        const vpnStr = "IMPRESSIVE, YOU'RE USING A VPN?";
+        await this.typeLine(vpnStr, undefined, '#16fe21');
+      }
+    } catch (e) {
+      console.log(e);
     }
   }
 
@@ -599,32 +769,38 @@ export class AppComponent implements OnInit, AfterViewChecked {
     }
   }
 
+  async promptOptOut() {
+    this.isOptOutPrompt = true;
+    await this.typeLine(`Do you want to be removed form our beta launch notifications?`.toUpperCase());
+    await this.promptInput('[Y]es / [N]o');
+  }
+
   zodiacText(sign: string): string {
     switch(sign) {
       case 'Aries':
-        return 'Aries are passionate and independent. The most courageous of the signs, you must be the leader of every pack!';
+        return 'Aries are passionate and independent. The most courageous of the signs, you must be the leader of every pack!'.toUpperCase();
       case 'Taurus':
-        return 'Tauruses are the anchor of the Zodiac. You are a trustworthy friend, colleague, and partner.';
+        return 'Tauruses are the anchor of the Zodiac. You are a trustworthy friend, colleague, and partner.'.toUpperCase();
       case 'Gemini':
-        return 'Geminis are easily the life of the party without trying, you still enjoy time by yourselves.';
+        return 'Geminis are easily the life of the party without trying, you still enjoy time by yourselves.'.toUpperCase();
       case 'Cancer':
-        return 'Cancers are incredibly loyal but maybe to a fault? And let me guess you HATE small talk.';
+        return 'Cancers are incredibly loyal but maybe to a fault? And let me guess you HATE small talk.'.toUpperCase();
       case 'Leo':
-        return 'Leos love to bask in the spotlight and celebrate… well, themselves. :)';
+        return 'Leos love to bask in the spotlight and celebrate… well, themselves. :)'.toUpperCase();
       case 'Virgo':
-        return 'Did someone say planner? Virgos are a friend for life and a lifelong learner, you love trying new things!';
+        return 'Did someone say planner? Virgos are a friend for life and a lifelong learner, you love trying new things!'.toUpperCase();
       case 'Libra':
-        return 'Libras are the master of compromise and diplomacy, you are always the mediator of friends.';
+        return 'Libras are the master of compromise and diplomacy, you are always the mediator of friends.'.toUpperCase();
       case 'Scorpio':
-          return 'Scorpios are unafraid to blaze your own trail, you make a statement where you go.';
+          return 'Scorpios are unafraid to blaze your own trail, you make a statement where you go.'.toUpperCase();
       case 'Sagittarius':
-        return 'Sagittariuses are open-hearted and big-spirited. You give great advice to friends and family!';
+        return 'Sagittariuses are open-hearted and big-spirited. You give great advice to friends and family!'.toUpperCase();
       case 'Capricorn':
-        return 'Capricorns always get what they set their mind to. As someone who believes presentation is everything, everything you do is Insta-worthy!';
+        return 'Capricorns always get what they set their mind to. As someone who believes presentation is everything, everything you do is Insta-worthy!'.toUpperCase();
       case 'Aquarius':
-        return 'Natural intellects who care deeply about others, Aquarians are always working to make the world a better place.';
+        return 'Natural intellects who care deeply about others, Aquarians are always working to make the world a better place.'.toUpperCase();
       case 'Pisces':
-        return 'Maybe the most sensitive and intuitive friend in the group, Pisces have a strong moral compass.';
+        return 'Maybe the most sensitive and intuitive friend in the group, Pisces have a strong moral compass.'.toUpperCase();
       default:
         return '';            
     }

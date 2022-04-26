@@ -3,7 +3,6 @@
 @media screen and (max-width: 600px) {
 p {font-size: 3vw;}
 span {font-size: 3vw;}
-#terminal_input {font-size: 3vw!important;}
 }
 
 body {
@@ -63,7 +62,7 @@ body {
         color: #c3ef8f;
     }
     
-    a {
+    a, .clickable {
         color: #c3ef8f;
         background: rgba(195, 239, 143, 0.5);
         border-color: rgba(195, 239, 143, 0.5);
@@ -107,19 +106,19 @@ body {
 
 @keyframes blur {
   0% {
-    filter: blur(.5px);
+    filter: blur(.1px);
     opacity: 0.95;
   }
   50% {
-    filter: blur(.5px);
+    filter: blur(.1px);
     opacity: 1;
   }
   100% {
-    filter: blur(.5px);
+    filter: blur(.1px);
     opacity: 0.93;
   }
     50% {
-    filter: blur(.5px);
+    filter: blur(.1px);
     opacity: 1;
   }
 }
@@ -179,15 +178,15 @@ body {
 }
 @keyframes appear {
     0% {
-        filter: blur(5px);
+        filter: blur(.5px);
         opacity: 0.85;
     }
     50% {
-        filter: blur(3px);
+        filter: blur(.3px);
         opacity: 0.85;
     }
     100% {
-        filter: blur(4px);
+        filter: blur(.4px);
         opacity: 0.85;
     }
 }
