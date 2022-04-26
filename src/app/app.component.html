@@ -1,36 +1,40 @@
-<div style="display: flex;">
+<div style="display: flex; overflow:hidden;">
   <div #scrollable id="terminal_container">
+  <div class="container">
     <p *ngFor="let item of this.typedText; let i = index">
       <span *ngIf="this.typedText[i].isImage">
         <img src="{{ this.typedText[i].url }}">  
       </span>
 
       <span *ngIf="!this.typedText[i].isImage">
-        <span *ngFor="let t of this.typedText[i].text" [ngStyle]="{'color': t.color ? t.color : 'white'}">{{ t.text }}</span>
+        <span *ngFor="let t of this.typedText[i].text" [ngStyle]="{'color': t.color ? t.color : '#c3ef8f'}">{{ t.text }}</span>
       </span>
     </p>
-    <p [ngStyle]="{ 'color': typingColor ? typingColor : 'white' }">
+    <p [ngStyle]="{ 'color': typingColor ? typingColor : '#c3ef8f' }">
       {{ this.typingText }}
     </p>
     
     <div *ngIf="readyForInput" id="input_container">
-      <span id="prefix">{{ this.prefixText }}</span><span>&nbsp;</span><input #input type="{{ this.isEmailSubmitted ? 'text' : 'email' }}" id="terminal_input" [(ngModel)]="this.inputText" autofocus>
+      <span id="prefix">{{ this.prefixText }}</span><span>&nbsp;</span><input *ngIf="!isMobileScreen" type="{{ this.isEmailSubmitted ? 'text' : 'email' }}" id="terminal_input" [(ngModel)]="this.inputText" autofocus>
+    </div>
+    <div *ngIf="readyForInput && isMobileScreen">
+      <input style="background-color: #4e4e4e;" type="{{ this.isEmailSubmitted ? 'text' : 'email' }}" id="terminal_input" [(ngModel)]="this.inputText">
     </div>
 
-    <div id="share" *ngIf="showShare">
-      <p *ngIf="canNativeShare" (click)="share()">
+    <div *ngIf="showShare">
+      <p *ngIf="canNativeShare" (click)="share()" style="text-decoration: underline;">
         Tell a friend about this project.
       </p>
       <div *ngIf="!canNativeShare">
-        <p>Tell a friend about this project.</p>
-        <p>
+        <p style="text-decoration: none;">Tell a friend about this project.</p>
+        <p style="text-decoration: underline;">
           <a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=creep.caden.io">Share on Facebook</a>
         </p>
-        <p>
+        <p style="text-decoration: underline;">
           <a target="_blank" href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fcreep.caden.io&text=What%20do%20data%20brokers%20know?">Share on Twitter</a>
         </p>
       </div>
     </div>
-    
+    </div>
   </div>
 </div>

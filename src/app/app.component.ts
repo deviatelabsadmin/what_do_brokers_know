@@ -35,7 +35,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
   currentIndex = 0;
   currentScrollHeight = document.documentElement.scrollHeight;
   failedEmail: boolean = false;
-  typingColor: string = 'white'
+  typingColor: string = '#c3ef8f'
   showShare: boolean = false;
 
   typed: Typed = new Typed({callback: (text) => this.typingText = text});
@@ -95,11 +95,11 @@ export class AppComponent implements OnInit, AfterViewChecked {
         text: [
           {
             text: this.prefixText,
-            color: 'white'
+            color: '#c3ef8f'
           },
           {
             text: this.inputText,
-            color: 'green'
+            color: '#16fe21'
           }
         ]
       });
@@ -114,11 +114,11 @@ export class AppComponent implements OnInit, AfterViewChecked {
       text: [
         {
           text: this.prefixText,
-          color: 'white'
+          color: '#c3ef8f'
         },
         {
           text: this.inputText,
-          color: 'green'
+          color: '#16fe21'
         }
       ]
     });
@@ -133,8 +133,8 @@ export class AppComponent implements OnInit, AfterViewChecked {
   }
 
   private async failedTerminate() {
-    await this.addLine('TERMINATING C:\\\\creep.exe', 'red');
-    await this.addLine('TERMINATED.', 'green');
+    await this.addLine('TERMINATING C:\\\\creep.exe', '#f32a9d');
+    await this.addLine('TERMINATED.', '#16fe21');
 
     await this.typeLine(`Well look at that, we couldn’t find you! (yet)`);
     await this.typeLine(`However, it may only be a matter of time before big data brokers slurp up your personal data and list it for sale on the open web for a fraction of a penny.`);
@@ -146,7 +146,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
 
   private async terminate() {
     await this.addLine('TERMINATING C:\\\\creep.exe', 'red');
-    await this.addLine('TERMINATED.', 'green');
+    await this.addLine('TERMINATED.', '#16fe21');
 
     await this.typeLine(`Want to know WTF just happened?`);
     await this.typeLine(`This is just a tiny snapshot of your data that is for sale on the open web. It cost us a fraction of a penny to buy.`);
@@ -170,19 +170,19 @@ export class AppComponent implements OnInit, AfterViewChecked {
       text: [
         {
           text: this.prefixText, 
-          color: 'white'
+          color: '#c3ef8f'
         }, 
         {
           text: this.inputText, 
-          color: 'green'
+          color: '#16fe21'
         }
       ]
     });
 
     if (this.isValidEmail) {
-      await this.typeLine('SEARCHING THE WEB...', undefined, 'lightseagreen');
+      await this.typeLine('SEARCHING THE WEB...', undefined, 'lightsea#16fe21');
       await this.pullData();
-      await this.typeLine('BUYING YOUR DATA...', undefined, 'lightseagreen');
+      await this.typeLine('BUYING YOUR DATA...', undefined, 'lightsea#16fe21');
   
       if (this.hasData) {
         this.pullDataSuccess(); 
@@ -195,7 +195,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
           this.typedText.push({
             text: [{
               text: `Wow... you're well hidden! We couldn’t buy any data.`,
-              color: 'white'
+              color: '#c3ef8f'
             }]
           });
   
@@ -217,7 +217,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
       },
       {
         text: this.inputText,
-        color: 'red'
+        color: 'f32a9d'
       },
       {
         text: `'? Doesn't look like an email address 🤔`
@@ -233,7 +233,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
           text: "OK ",
         }, {
           text: this.data.name,
-          color: 'green'
+          color: '#16fe21'
         }, {
           text: `, let's do this...`
         }
@@ -241,9 +241,9 @@ export class AppComponent implements OnInit, AfterViewChecked {
     }
 
     await this.typeLine(`Wow, there's a lot out there...`);
-    await this.typeLine(`Analyzing...`, undefined, 'green');
-    await this.typeLine(`Analyzing...`, undefined, 'green');
-    await this.typeLine(`Analyzing...`, undefined, 'green');
+    await this.typeLine(`Analyzing...`, undefined, '#16fe21');
+    await this.typeLine(`Analyzing...`, undefined, '#16fe21');
+    await this.typeLine(`Analyzing...`, undefined, '#16fe21');
 
     await this.typeNextData();
 
@@ -253,37 +253,91 @@ export class AppComponent implements OnInit, AfterViewChecked {
   private async typeNextData() {
     switch(this.currentIndex) {
       case 0:
-        if (this.data.hasPhone) {
-          await this.typeLine('Check your phone ;)');
-        }
-
-        if (this.data.title) {
-          await this.typeLine(`A ${this.data.title}... fancy`)
-        }
-    
-        if (this.data.addresses && this.data.addresses.length != 0) {
-          await this.typeLine('Remember living in any of these?');
-          
-          for (let ad of this.data.addresses) {
-            await this.addLine(ad, 'red');
+        if (this.hasNextDataAt(0)) {
+          if (this.data.hasPhone) {
+            await this.typeLine('Check your phone ;)', undefined, 'red');
           }
-        }
+  
+          if (this.data.title) {
+            await this.typeLine(`A ${this.data.title}... fancy`)
+          }
+      
+          if (this.data.addresses && this.data.addresses.length != 0) {
+            await this.typeLine('Remember living in any of these?');
+            
+            for (let ad of this.data.addresses) {
+              await this.addLine(ad, 'red');
+            }
+          }
 
-        await this.typeLine('Want to see more?');
-        await this.promptInput('[Y]es / [N]o, this is too creepy > ');
+          if (this.hasFutureData) {
+            await this.typeLine('Want to see more?');
+            await this.promptInput('[Y]es / [N]o, this is too creepy > ');
+          } else {
+            await this.typeLine(`Ok, enough of that, we're officially creeped out.`)
+            this.terminate();
+          }
+        } else {
+          this.currentIndex++;
+          await this.typeNextData();
+        }
 
         break;
       case 1:
-        await this.typeAfterFirstPrompt();
+        if (this.hasNextDataAt(1)) {
+          await this.typeAfterFirstPrompt();
+        } else {
+          this.currentIndex++;
+          await this.typeNextData();
+        }
         break;
       case 2:
-        await this.typeAfterSecondPrompt();
+        if (this.hasNextDataAt(2)) {
+          await this.typeAfterSecondPrompt();
+          this.currentIndex++;
+        }
         break;
       default:
         break;
     }
-
+    
     this.currentIndex++;
+  }
+
+  private hasNextDataAt(index: number): boolean {
+    switch(index) {
+      case 0:
+        if (this.data.hasPhone) return true;
+        if (this.data.title) return true;
+        if (this.data.addresses && this.data.addresses.length != 0) return true;
+
+        return false;
+      case 1:
+        if (this.data.birthday) return true;
+        if (this.data.workplaces && this.data.workplaces.length != 0) return true;
+        if (this.data.emails && this.data.emails.length != 0) return true;
+        if (this.data.associates && this.data.associates.length != 0) return true;
+        if (this.data.skills && this.data.skills.length != 0) return true;
+        if (this.data.school) return true;
+
+        return false;
+      case 2: 
+        if (this.data.social_handles) return true;
+        if (this.data.instagram) return true;
+        return false;      
+      default: 
+        return false;
+    }
+  }
+
+  private get hasFutureData(): boolean {
+    for (let i = this.currentIndex + 1; i < 4; i++) {
+      if (this.hasNextDataAt(i)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private async typeAfterFirstPrompt() {
@@ -293,11 +347,20 @@ export class AppComponent implements OnInit, AfterViewChecked {
 
         if (this.data.birthday.age) {
           await this.typeLine(`A ${this.data.birthday.age} year old ${this.data.gender ? this.data.gender : ''} ${this.data.birthday.sign}? You may need a hug today.`);
+          await this.typeLine(this.zodiacText(this.data.birthday.sign));
         }
 
         if (this.data.birthday.isCurrentZodiac) {
-          await this.typeLine(`Woo! it's ${this.data.brithday.sign} season!`);
+          await this.typeLine(`Woo! it's ${this.data.birthday.sign} season!`);
         }
+      }
+    }
+
+    if (this.data.emails && this.data.emails.length != 0) {
+      await this.typeLine(`HOW COME YOU DIDN'T USE ONE OF YOUR OTHER EMAILS?`);
+
+      for (let e of this.data.emails) {
+        await this.addLine(e, 'red');
       }
     }
 
@@ -329,8 +392,13 @@ export class AppComponent implements OnInit, AfterViewChecked {
       await this.typeLine(`OH SMARTY PANTS, LOOKS LIKE YOUR SKILLS WERE HONED AT ${this.data.school}?`);
     }
 
-    await this.typeLine('Want to see more?');
-    await this.promptInput('[Y]es... I think / [N]o, make it stop > ');
+    if (this.hasFutureData) {
+      await this.typeLine('Want to see more?');
+      await this.promptInput('[Y]es... I think / [N]o, make it stop > ');
+    } else {
+      await this.typeLine(`Ok, enough of that, we're officially creeped out.`)
+      this.terminate();
+    }
   }
 
   private async typeAfterSecondPrompt() {
@@ -338,10 +406,10 @@ export class AppComponent implements OnInit, AfterViewChecked {
 
     if (this.data.social_handles) {
       await this.typeLine(`GENTLY CREEPING ON YOUR SOCIAL MEDIA...`);
-      await this.typeLine('Analyzing...', undefined, 'green');
+      await this.typeLine('Analyzing...', undefined, '#16fe21');
 
       for (let s of this.data.social_handles) {
-        await this.addLine(`${s}`);
+        await this.addLine(`${s}`, 'red');
       }
     }
 
@@ -394,7 +462,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
     }
 
     await this.typeLine(LOAD_TEXT);
-    await this.typeLine('LOADED.', undefined, 'green');
+    await this.typeLine('LOADED.', undefined, '#16fe21');
 
     await this.typeGeoLocation();
 
@@ -412,7 +480,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
       }, 
       {
         text: ip,
-        color: 'red'
+        color: '#f32a9d'
       }
     ]);
 
@@ -426,12 +494,12 @@ export class AppComponent implements OnInit, AfterViewChecked {
         }, 
         {
           text: this.geo.locationStr(locRes),
-          color: 'red'
+          color: '#f32a9d'
         }
       ]);
     } else {
       const vpnStr = "Impressive, you're using a VPN?";
-      await this.typeLine(vpnStr, undefined, 'green');
+      await this.typeLine(vpnStr, undefined, '#16fe21');
     }
   }
 
@@ -446,7 +514,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
       this.typedText.push({
         text: [{
           text: line,
-          color: color ? color : 'white'
+          color: color ? color : '#c3ef8f'
         }]
       });
     } else if (styledLine) {
@@ -455,7 +523,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
       });
     }
 
-    this.typingColor = 'white'
+    this.typingColor = '#c3ef8f'
   }
 
   async typeLine(line: string, typed?: Array<any>, color?: string) {
@@ -479,25 +547,25 @@ export class AppComponent implements OnInit, AfterViewChecked {
       this.typedText.push({
         text: [{
           text: line,
-          color: color ? color : 'white'
+          color: color ? color : '#c3ef8f'
         }]
       });
     }
 
-    this.typingColor = 'white';
+    this.typingColor = '#c3ef8f';
   }
 
   async rickroll() {
     this.readyForInput = false;
     await this.typeLine('BOOTING UP SECONDARY PROCESS...', undefined, 'red');
-    await this.typeLine('RUNNING C:\\\\rickroll.exe', undefined, 'green');
+    await this.typeLine('RUNNING C:\\\\rickroll.exe', undefined, '#16fe21');
 
     window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "_blank");
 
     await this.addLine('RESUMING C:\\\\creep.exe')
     await this.addLine(undefined, undefined, [{
       text: 'RESUMED.',
-      color: 'green'
+      color: '#16fe21'
     }]);
     
     this.readyForInput = true;
@@ -520,6 +588,45 @@ export class AppComponent implements OnInit, AfterViewChecked {
       navigator.share({title: "What Do Data Brokes Know?"});
     } else {
 
+    }
+  }
+
+  get isMobileScreen(): boolean {
+    if (window.screen.width <= 700) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  zodiacText(sign: string): string {
+    switch(sign) {
+      case 'Aries':
+        return 'Aries are passionate and independent. The most courageous of the signs, you must be the leader of every pack!';
+      case 'Taurus':
+        return 'Tauruses are the anchor of the Zodiac. You are a trustworthy friend, colleague, and partner.';
+      case 'Gemini':
+        return 'Geminis are easily the life of the party without trying, you still enjoy time by yourselves.';
+      case 'Cancer':
+        return 'Cancers are incredibly loyal but maybe to a fault? And let me guess you HATE small talk.';
+      case 'Leo':
+        return 'Leos love to bask in the spotlight and celebrate… well, themselves. :)';
+      case 'Virgo':
+        return 'Did someone say planner? Virgos are a friend for life and a lifelong learner, you love trying new things!';
+      case 'Libra':
+        return 'Libras are the master of compromise and diplomacy, you are always the mediator of friends.';
+      case 'Scorpio':
+          return 'Scorpios are unafraid to blaze your own trail, you make a statement where you go.';
+      case 'Sagittarius':
+        return 'Sagittariuses are open-hearted and big-spirited. You give great advice to friends and family!';
+      case 'Capricorn':
+        return 'Capricorns always get what they set their mind to. As someone who believes presentation is everything, everything you do is Insta-worthy!';
+      case 'Aquarius':
+        return 'Natural intellects who care deeply about others, Aquarians are always working to make the world a better place.';
+      case 'Pisces':
+        return 'Maybe the most sensitive and intuitive friend in the group, Pisces have a strong moral compass.';
+      default:
+        return '';            
     }
   }
 
