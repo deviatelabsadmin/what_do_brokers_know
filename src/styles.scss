@@ -205,7 +205,21 @@ body {
     }
 }
 
-.container span {filter: none!important;}
+.container #prefix {width:inherit!important}
+
+
+.container span span{filter: none!important;        width: calc(100vw - 1px);
+overflow-wrap: break-word;
+word-wrap: break-word;
+/* Instead use this non-standard one: */
+word-break: break-word;
+
+/* Adds a hyphen where the word breaks, if supported (No Blink) */
+-ms-hyphens: auto;
+-moz-hyphens: auto;
+-webkit-hyphens: auto;
+hyphens: auto;
+}
 
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
     select,

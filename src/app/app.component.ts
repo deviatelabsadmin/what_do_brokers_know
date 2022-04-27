@@ -317,7 +317,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
         {
           text: "OK ",
         }, {
-          text: this.data.name,
+          text: this.data.name.toUpperCase(),
           color: '#16fe21'
         }, {
           text: `, LET'S DO THIS...`
@@ -340,7 +340,11 @@ export class AppComponent implements OnInit, AfterViewChecked {
       case 0:
         if (this.hasNextDataAt(0)) {
           if (this.data.phones) {
-            await this.typeLine(`YOU'VE HAD QUITE A FEW PHONE NUMBERS...`);
+            if (this.data.phones.length > 1) {
+              await this.typeLine(`YOU'VE HAD QUITE A FEW PHONE NUMBERS...`);
+            } else {
+              await this.typeLine(`WE'VE FOUND YOUR PHONE NUMBER...`);
+            }
 
             for (let p of this.data.phones) {
               await this.addLine(p, 'red');
@@ -549,6 +553,8 @@ export class AppComponent implements OnInit, AfterViewChecked {
             isImage: true,
             src: this.data.instagram.posts[i]
           });
+
+          await new Promise(f => setTimeout(f, 750));
         }
       } else if (!this.data.instagram.isPublic) {
         await this.typeLine(`HAVE YOU POSTED TO IG RECENTLY? YOU HAVE ${this.data.instagram.followers} REASONS TO SHARE AN UPDATE`);
@@ -674,7 +680,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
   }
 
   async addLine(line?: string, color?: string, styledLine?: Array<any>) {
-    await new Promise(f => setTimeout(f, 300));
+    await new Promise(f => setTimeout(f, 500));
 
     if (color) {
       this.typingColor = color;
@@ -702,7 +708,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
     }
 
     this.typed
-      .type(line, {errorMultiplier: 0, noSpecialCharErrors: true, perLetterDelay: {min: 60, max: 60}});
+      .type(line, {errorMultiplier: 0, noSpecialCharErrors: true, perLetterDelay: {min: 40, max: 40}});
 
     await this.typed.run();
 
@@ -771,8 +777,8 @@ export class AppComponent implements OnInit, AfterViewChecked {
 
   async promptOptOut() {
     this.isOptOutPrompt = true;
-    await this.typeLine(`Do you want to be removed form our beta launch notifications?`.toUpperCase());
-    await this.promptInput('[Y]es / [N]o');
+    await this.typeLine(`Do you want to be removed from our beta launch notifications?`.toUpperCase());
+    await this.promptInput('[Y]es / [N]o > ');
   }
 
   zodiacText(sign: string): string {
