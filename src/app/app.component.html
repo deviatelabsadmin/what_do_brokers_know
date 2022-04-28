@@ -1,9 +1,9 @@
 <div style="display: flex; overflow:hidden;">
   <div #scrollable id="terminal_container">
   <div class="container">
-    <p *ngFor="let item of this.typedText; let i = index">
-      <span *ngIf="this.typedText[i].isImage">
-        <img src="{{ this.typedText[i].url }}">  
+    <p *ngFor="let item of this.typedText; let i = index"  [style.animation]="this.typedText[i].isImage && 'none'" [style.filter]="this.typedText[i].isImage && 'blur(0px)'">
+      <span *ngIf="this.typedText[i].isImage"  [style.animation]="this.typedText[i].isImage && 'none'" [style.filter]="this.typedText[i].isImage && 'blur(0px)'">
+        <img style="filter: blur(0px)!Important; animation: none; max-height: 500px; max-width: 90%;" src="data:image/jpeg;base64,{{ this.typedText[i].src }}">  
       </span>
 
       <span *ngIf="!this.typedText[i].isImage">
