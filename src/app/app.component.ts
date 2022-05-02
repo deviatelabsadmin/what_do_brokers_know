@@ -102,7 +102,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
 
       this.printInput(input);
 
-      if (input == 'n' || input == 'no') {
+      if (input.toLowerCase() == 'n' || input.toLowerCase() == 'no') {
         await this.terminate();
       } else {
         await this.promptInput(EMAIL_PROMPT);
@@ -119,9 +119,9 @@ export class AppComponent implements OnInit, AfterViewChecked {
 
       this.printInput(input);
 
-      if (input == 'y' || input == 'yes') {
+      if (input.toLowerCase() == 'y' || input.toLowerCase() == 'yes') {
         await this.api.optOut(this.email);
-        await this.typeLine(`OK, YOU'VE SUCCESSFULLY OPTED OUT`);
+        await this.typeLine(`OK, YOU'VE SUCCESSFULLY OPTED OUT.`);
       } else {
         // todo
       }
@@ -171,7 +171,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
       ]
     });
     
-    if (input == 'no' || input == 'n') {
+    if (input.toLowerCase() == 'no' || input.toLowerCase() == 'n') {
       await this.terminate();
     } else {
       await this.typeNextData();
@@ -690,7 +690,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
     await this.addLine(undefined, undefined, [
       {
         text: `SHARE TO TWITTER`,
-        link: 'https://twitter.com/intent/tweet?url=https%3A%2F%2Fismydataforsale.com&text=What%20do%20data%20brokers%20know?'
+        link: 'https://twitter.com/intent/tweet?url=http%3A%2F%2Fismydataforsale.com&text=What%20do%20data%20brokers%20know?'
       }
     ]);
 
