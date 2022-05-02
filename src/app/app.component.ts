@@ -30,13 +30,15 @@ export class AppComponent implements OnInit, AfterViewChecked {
   inputText: string = '';
   isEmailSubmitted = false;
   data: any;
-  hasData: boolean = false;
+  instagramData: any;
   currentIndex = 0;
   currentScrollHeight = document.documentElement.scrollHeight;
   failedEmail: boolean = false;
   typingColor: string = '#c3ef8f'
   isOptOutPrompt: boolean = false;
   isTermsPrompt: boolean = true;
+  isLoadingIg: boolean = false;
+  email: string = '';
 
   typed: Typed = new Typed({callback: (text) => this.typingText = text});
   
@@ -50,7 +52,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
         case 'Escape':
           await this.rickroll();
           break;
-      }  
+      }
     }    
   }
 
@@ -89,9 +91,16 @@ export class AppComponent implements OnInit, AfterViewChecked {
     this.readyForInput = false;
 
     if (this.isTermsPrompt) {
-      const input = this.inputText.toLowerCase();
       this.isTermsPrompt = false;
-      this.printInput();
+
+      let input = this.inputText.toLowerCase();
+      if (input != 'no' && input != 'n' && input != 'y' && input != 'yes') {
+        input = 'Yes';
+      } else {
+        input = this.inputText;
+      }
+
+      this.printInput(input);
 
       if (input == 'n' || input == 'no') {
         await this.terminate();
@@ -100,11 +109,18 @@ export class AppComponent implements OnInit, AfterViewChecked {
       }
 
     } else if (this.isOptOutPrompt) {
-      const input = this.inputText.toLowerCase();
-      this.printInput();
+      let input = this.inputText.toLowerCase();
+
+      if (input != 'no' && input != 'n' && input != 'y' && input != 'yes') {
+        input = 'No';
+      } else {
+        input = this.inputText;
+      }
+
+      this.printInput(input);
 
       if (input == 'y' || input == 'yes') {
-
+        await this.api.optOut(this.email);
         await this.typeLine(`OK, YOU'VE SUCCESSFULLY OPTED OUT`);
       } else {
         // todo
@@ -112,14 +128,14 @@ export class AppComponent implements OnInit, AfterViewChecked {
     } else if (this.isEmailSubmitted) {
       await this.handleInput();
     } else if (!this.inputText.replace(/\s/g, '').length) {
-      this.printInput();
+      this.printInput(this.inputText);
       await this.promptInput(EMAIL_PROMPT);
     } else {
       await this.submitEmail()
     }
   }
 
-  private printInput() {
+  private printInput(input: string) {
     this.typedText.push({
       text: [
         {
@@ -127,7 +143,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
           color: '#c3ef8f'
         },
         {
-          text: this.inputText,
+          text: input,
           color: '#16fe21'
         }
       ]
@@ -135,6 +151,13 @@ export class AppComponent implements OnInit, AfterViewChecked {
   }
 
   private async handleInput() {
+    let input = this.inputText.toLowerCase();
+    if (input != 'no' && input != 'n' && input != 'y' && input != 'yes') {
+      input = 'Yes';
+    } else {
+      input = this.inputText;
+    }
+
     this.typedText.push({
       text: [
         {
@@ -142,13 +165,11 @@ export class AppComponent implements OnInit, AfterViewChecked {
           color: '#c3ef8f'
         },
         {
-          text: this.inputText,
+          text: input,
           color: '#16fe21'
         }
       ]
     });
-
-    const input = this.inputText.toLowerCase();
     
     if (input == 'no' || input == 'n') {
       await this.terminate();
@@ -161,9 +182,9 @@ export class AppComponent implements OnInit, AfterViewChecked {
     await this.addLine('TERMINATING C:\\\\creep.exe', '#f32a9d');
     await this.addLine('TERMINATED.', '#16fe21');
 
-    await this.typeLine(`Well look at that, we couldn’t find you! (yet)`);
-    await this.typeLine(`However, it may only be a matter of time before big data brokers slurp up your personal data and list it for sale on the open web for a fraction of a penny.`);
-    await this.typeLine(`We're Caden, are a startup in NYC that is building a platform to help you control, own, protect and make money off your data, all while protecting your privacy. The internet is riddled with all sorts of problems and we are working to make the internet a better place.`, [
+    await this.addLine(`Well look at that, we couldn’t find you! (yet)`);
+    await this.addLine(`However, it may only be a matter of time before big data brokers slurp up your personal data and list it for sale on the open web for a fraction of a penny.`);
+    await this.addLine(undefined, undefined, [
       {
         text: `We're `
       },
@@ -175,8 +196,8 @@ export class AppComponent implements OnInit, AfterViewChecked {
         text: `, are a startup in NYC that is building a platform to help you control, own, protect and make money off your data, all while protecting your privacy. The internet is riddled with all sorts of problems and we are working to make the internet a better place.`
       }
     ]);
-    await this.typeLine(`We’ll let you know when our Beta launches this summer.`);
-    await this.typeLine(`You can also follow our journey on Instagram and Twitter.`, [
+    await this.addLine(`We’ll let you know when our Beta launches this summer.`);
+    await this.addLine(undefined, undefined, [
       {
         text: `You can also follow our journey on `
       },
@@ -203,9 +224,9 @@ export class AppComponent implements OnInit, AfterViewChecked {
     await this.addLine('TERMINATING C:\\\\creep.exe', 'red');
     await this.addLine('TERMINATED.', '#16fe21');
 
-    await this.typeLine(`Want to know WTF just happened?`);
-    await this.typeLine(`This is just a tiny snapshot of your data that is for sale on the open web. It cost us a fraction of a penny to buy.`);
-    await this.typeLine(`We're Caden, a startup in NYC that is building a platform to help folks like you control, own, protect and make money off your data, all while protecting your privacy. The internet is riddled with all sorts of problems and we are working to make the internet a better place`, [
+    await this.addLine(`Want to know WTF just happened?`);
+    await this.addLine(`This is just a tiny snapshot of your data that is for sale on the open web. It cost us a fraction of a penny to buy.`);
+    await this.addLine(undefined, undefined, [
       {
         text: `We're `
       },
@@ -214,11 +235,11 @@ export class AppComponent implements OnInit, AfterViewChecked {
         link: 'https://www.caden.io'
       },
       {
-        text: `, a startup in NYC that is building a platform to help folks like you control, own, protect and make money off your data, all while protecting your privacy. The internet is riddled with all sorts of problems and we are working to make the internet a better place`
+        text: `, a startup in NYC that is building a platform to help folks like you control, own, protect and make money off your data, all while protecting your privacy. The internet is riddled with all sorts of problems and we are working to make the internet a better place.`
       }
     ]);
-    await this.typeLine(`We’ll let you know when our Beta launches this summer.`);
-    await this.typeLine(`You can also follow our journey on Instagram and Twitter.`, [
+    await this.addLine(`We’ll let you know when our Beta launches this summer.`);
+    await this.addLine(undefined, undefined, [
       {
         text: `You can also follow our journey on `
       },
@@ -237,8 +258,8 @@ export class AppComponent implements OnInit, AfterViewChecked {
         text: '.'
       }
     ]);
-    await this.typeLine(`Don’t worry, we didn’t do anything nefarious with the data we showed you above. This was just a creepy art project to demonstrate one of many issues around personal data and the endless surveillance that you never signed up for.`)
-    await this.typeLine(`We look forward to solving these problems together.`);
+    await this.addLine(`Don’t worry, we didn’t do anything nefarious with the data we showed you above. This was just a creepy art project to demonstrate one of many issues around personal data and the endless surveillance that you never signed up for.`)
+    await this.addLine(`We look forward to solving these problems together.`);
     await this.typeShare();
     await this.promptOptOut();
   }
@@ -249,8 +270,9 @@ export class AppComponent implements OnInit, AfterViewChecked {
     )).valueOf();
   }
 
-  // TODO implement failed email
   private async submitEmail() {
+    this.email = this.inputText.toLowerCase();
+    
     this.typedText.push({
       text: [
         {
@@ -265,7 +287,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
     });
 
     if (this.isValidEmail) {
-      await this.typeLine('SEARCHING THE WEB...', undefined, 'lightsea#16fe21');
+      await this.typeLine('SEARCHING...', undefined, 'lightsea#16fe21');
       await this.pullData();
       await this.typeLine('BUYING YOUR DATA...', undefined, 'lightsea#16fe21');
   
@@ -277,12 +299,22 @@ export class AppComponent implements OnInit, AfterViewChecked {
           await this.failedTerminate();
         } else {
             // request another email
-          this.typedText.push({
-            text: [{
-              text: `WOW... YOU'RE WELL HIDDEN! WE COULDN'T BUY ANY DATA.`,
-              color: '#c3ef8f'
-            }]
-          });
+          if (this.data && this.data.name) {
+            this.typedText.push({
+              text: [{
+                text: `WOW, ${this.data.name}... YOU'RE WELL HIDDEN! WE COULDN'T BUY ANY DATA.`,
+                color: '#c3ef8f'
+              }]
+            });
+          } else {
+            this.typedText.push({
+              text: [{
+                text: `WOW... YOU'RE WELL HIDDEN! WE COULDN'T BUY ANY DATA.`,
+                color: '#c3ef8f'
+              }]
+            });
+          }
+          
   
           this.isEmailSubmitted = false;
           this.failedEmail = true;
@@ -292,17 +324,17 @@ export class AppComponent implements OnInit, AfterViewChecked {
     } else {
       // invalid email format
       await this.invalidEmailPrompt();
-    }    
+    }
   }
 
   private async invalidEmailPrompt() {
-    await this.typeLine(`WHAT'S '${this.inputText}'? DOESN'T LOOK LIKE AN EMAIL ADDRESS 🤔`.toUpperCase(), [
+    await this.typeLine(`WHAT'S '${this.inputText}'? DOESN'T LOOK LIKE AN EMAIL ADDRESS 🤔`, [
       {
         text: `WHAT'S '`
       },
       {
         text: this.inputText,
-        color: 'f32a9d'
+        color: '#f32a9d'
       },
       {
         text: `'? DOESN'T LOOK LIKE AN EMAIL ADDRESS 🤔`
@@ -375,10 +407,14 @@ export class AppComponent implements OnInit, AfterViewChecked {
           }
       
           if (this.data.addresses && this.data.addresses.length != 0) {
-            await this.typeLine('REMEMBER LIVING IN ANY OF THESE?');
+            if (this.data.addresses.length > 1) {
+              await this.typeLine('REMEMBER LIVING IN ANY OF THESE PLACES?');
+            } else {
+              await this.typeLine('REMEMBER LIVING HERE?');
+            }
             
             for (let ad of this.data.addresses) {
-              await this.addLine(ad, 'red');
+              await this.addLine(ad.toUpperCase(), 'red');
             }
 
             await new Promise(f => setTimeout(f, 500));
@@ -433,12 +469,12 @@ export class AppComponent implements OnInit, AfterViewChecked {
         if (this.data.emails && this.data.emails.length != 0) return true;
         if (this.data.associates && this.data.associates.length != 0) return true;
         if (this.data.skills && this.data.skills.length != 0) return true;
-        if (this.data.school) return true;
+        if (this.data.school && this.data.school.length != 0) return true;
 
         return false;
       case 2: 
         if (this.data.social_handles) return true;
-        if (this.data.instagram) return true;
+        if (this.data.instagram && this.instagramData) return true;
         return false;      
       default: 
         return false;
@@ -466,14 +502,18 @@ export class AppComponent implements OnInit, AfterViewChecked {
         }
 
         if (this.data.birthday.isCurrentZodiac) {
-          await this.typeLine(`Woo! it's ${this.data.birthday.sign} season!`.toUpperCase());
+          await this.typeLine(`WOO! IT'S ${this.data.birthday.sign.toUpperCase()} SEASON!`);
         }
       }
       await new Promise(f => setTimeout(f, 500));
     }
 
     if (this.data.emails && this.data.emails.length != 0) {
-      await this.typeLine(`HOW COME YOU DIDN'T USE ONE OF YOUR OTHER EMAILS?`);
+      if (this.data.emails.length > 1) {
+        await this.typeLine(`HOW COME YOU DIDN'T USE ONE OF YOUR OTHER EMAILS?`); 
+      } else {
+        await this.typeLine(`HOW COME YOU DIDN'T USE YOUR OTHER EMAIL?`);
+      }
 
       for (let e of this.data.emails) {
         await this.addLine(e, 'red');
@@ -482,7 +522,12 @@ export class AppComponent implements OnInit, AfterViewChecked {
     }
 
     if (this.data.workplaces && this.data.workplaces.length != 0) {
-      await this.typeLine('THESE LOOK LIKE FUN PLACES TO WORK...');
+      if (this.data.workplaces.length > 1) {
+        await this.typeLine('THESE LOOK LIKE FUN PLACES TO WORK...');
+      } else {
+        await this.typeLine('THIS LOOKS LIKE A FUN PLACE TO WORK...');
+      }
+      
 
       for (let w of this.data.workplaces) {
         await this.addLine(w.toUpperCase(), 'red');
@@ -508,8 +553,13 @@ export class AppComponent implements OnInit, AfterViewChecked {
       await new Promise(f => setTimeout(f, 500));
     }
 
-    if (this.data.school) {
-      await this.typeLine(`OH SMARTY PANTS, LOOKS LIKE YOUR SKILLS WERE HONED AT ${this.data.school.toUpperCase()}?`);
+    if (this.data.school && this.data.school.length != 0) {
+      await this.typeLine(`OH SMARTY PANTS, LOOKS LIKE YOUR SKILLS WERE HONED AT...`);
+
+      for (let s of this.data.school) {
+        await this.addLine(s.toUpperCase(), 'red');
+      }
+
       await new Promise(f => setTimeout(f, 500));
     }
 
@@ -535,29 +585,29 @@ export class AppComponent implements OnInit, AfterViewChecked {
       await new Promise(f => setTimeout(f, 500));
     }
 
-    if (this.data.instagram) {
+    if (this.instagramData) {
       await this.typeLine(`LOOK FAMILIAR?`);
 
       this.typedText.push({
         isImage: true,
-        src: this.data.instagram.profile
+        src: this.instagramData.profile
       });
 
       await new Promise(f => setTimeout(f, 500));
 
-      if (this.data.instagram.posts && this.data.instagram.posts.length != 0) {
+      if (this.instagramData.posts && this.instagramData.posts.length != 0) {
         await this.typeLine(`HOW ABOUT THESE MEMORIES YOU'VE MADE?`);
         
-        for (let i = 0; i < this.data.instagram.posts.length; i++) {
+        for (let i = 0; i < this.instagramData.posts.length; i++) {
            this.typedText.push({
             isImage: true,
-            src: this.data.instagram.posts[i]
+            src: this.instagramData.posts[i]
           });
 
-          await new Promise(f => setTimeout(f, 750));
+          await new Promise(f => setTimeout(f, 1000));
         }
-      } else if (!this.data.instagram.isPublic) {
-        await this.typeLine(`HAVE YOU POSTED TO IG RECENTLY? YOU HAVE ${this.data.instagram.followers} REASONS TO SHARE AN UPDATE`);
+      } else if (!this.instagramData.isPublic) {
+        await this.typeLine(`HAVE YOU POSTED TO IG RECENTLY? YOU HAVE ${this.instagramData.followers} REASONS TO SHARE AN UPDATE`);
       }
     }
 
@@ -570,13 +620,27 @@ export class AppComponent implements OnInit, AfterViewChecked {
   private async pullData() {
     const res: any = await this.api.requestByEmail(this.inputText, false);
 
-    console.log(res);
-
     if (res.hasOwnProperty('body') && Object.keys(res['body']).length != 0) {
       this.data = res['body'];
-      this.hasData = true;
+
+      if (this.data.instagram) {
+        this.isLoadingIg = true;
+        this.api.getInstagram(this.data.instagram).then((data: any) => {
+          this.isLoadingIg = false;
+
+          if (data['body'] && data['body']['profile']) {
+            this.instagramData = data['body']
+          }
+        });
+      }
+    }
+  }
+
+  get hasData(): boolean {
+    if (this.data && (Object.keys(this.data).length > 1 || !this.data.hasOwnProperty('name'))) { 
+      return true;
     } else {
-      this.hasData = false;
+      return false;
     }
   }
 
@@ -605,7 +669,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
       },
       {
         text: 'TERMS',
-        link: 'https://www.caden.io/privacy'
+        link: 'https://www.caden.io/tos-terminal'
       },
       {
         text: '?'
@@ -616,25 +680,25 @@ export class AppComponent implements OnInit, AfterViewChecked {
   }
 
   async typeShare() {
+    await this.addLine('TELL A FRIEND ABOUT THIS PROJECT.');
+    await this.addLine(undefined, undefined, [
+      {
+        text: `SHARE TO FACEBOOK`,
+        link: 'https://www.facebook.com/sharer/sharer.php?u=ismydataforsale.com'
+      }
+    ]);
+    await this.addLine(undefined, undefined, [
+      {
+        text: `SHARE TO TWITTER`,
+        link: 'https://twitter.com/intent/tweet?url=https%3A%2F%2Fismydataforsale.com&text=What%20do%20data%20brokers%20know?'
+      }
+    ]);
+
     if (this.canNativeShare) {
       await this.addLine(undefined, undefined, [
         {
-          text: 'TELL A FRIEND ABOUT THIS PROJECT.',
+          text: 'Share',
           click: this.share,
-        }
-      ]);
-    } else {
-      await this.addLine('TELL A FRIEND ABOUT THIS PROJECT.');
-      await this.addLine(undefined, undefined, [
-        {
-          text: `Share on Facebook`.toUpperCase(),
-          link: 'https://www.facebook.com/sharer/sharer.php?u=creep.caden.io'
-        }
-      ]);
-      await this.addLine(undefined, undefined, [
-        {
-          text: `Share on Instagram`.toUpperCase(),
-          link: 'https://twitter.com/intent/tweet?url=https%3A%2F%2Fcreep.caden.io&text=What%20do%20data%20brokers%20know?'
         }
       ]);
     }
@@ -777,7 +841,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
 
   async promptOptOut() {
     this.isOptOutPrompt = true;
-    await this.typeLine(`Do you want to be removed from our beta launch notifications?`.toUpperCase());
+    await this.typeLine(`Get updates on how to protect your data and Caden's Beta, launching this summer.`.toUpperCase());
     await this.promptInput('[Y]es / [N]o > ');
   }
 

@@ -1,9 +1,9 @@
 <div style="display: flex; overflow:hidden;">
   <div #scrollable id="terminal_container">
   <div class="container">
-    <p *ngFor="let item of this.typedText; let i = index">
-      <span *ngIf="this.typedText[i].isImage">
-        <img style="max-height: 500px; max-width: 90%;" src="data:image/jpeg;base64,{{ this.typedText[i].src }}">  
+    <p *ngFor="let item of this.typedText; let i = index"  [style.animation]="this.typedText[i].isImage && 'none'" [style.filter]="this.typedText[i].isImage && 'blur(0px)'">
+      <span *ngIf="this.typedText[i].isImage"  [style.animation]="this.typedText[i].isImage && 'none'" [style.filter]="this.typedText[i].isImage && 'blur(0px)'">
+        <img style="filter: blur(0px)!Important; animation: none; max-height: 500px; max-width: 90%;" src="data:image/jpeg;base64,{{ this.typedText[i].src }}"> 
       </span>
 
       <span *ngIf="!this.typedText[i].isImage">
@@ -22,22 +22,6 @@
     </div>
     <div *ngIf="readyForInput && isMobileScreen">
       <input style="background-color: #4e4e4e;" type="{{ this.isEmailSubmitted ? 'text' : 'email' }}" id="terminal_input" [(ngModel)]="this.inputText">
-    </div>
-
-    <!-- <div *ngIf="showShare">
-      <p *ngIf="canNativeShare" (click)="share()" style="text-decoration: underline;">
-        Tell a friend about this project.
-      </p>
-      <div *ngIf="!canNativeShare">
-        <p style="text-decoration: none;">Tell a friend about this project.</p>
-        <p style="text-decoration: underline;">
-          <a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=creep.caden.io">Share on Facebook</a>
-        </p>
-        <p style="text-decoration: underline;">
-          <a target="_blank" href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fcreep.caden.io&text=What%20do%20data%20brokers%20know?">Share on Twitter</a>
-        </p>
-      </div>
-    </div> -->
     </div>
   </div>
 </div>
